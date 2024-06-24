@@ -45,13 +45,13 @@ const record = await keyValueStore.getRecord(keyValueStoreRecordName);
 //@ts-ignore
 const scores = record?.value?.lighthouseResults?.scores;
 //@ts-ignore
-const successfulRequests = record?.value?.lighthouseResults?.successfulPages;
+const successfulRequests: { url:string, scores: Record<string, number> }[] = record?.value?.lighthouseResults?.successfulPages;
 //@ts-ignore
 const finishedRequests = record?.value?.requestsFinished;
 const runUrl = payload && payload.eventData && `https://console.apify.com/view/runs/${payload.eventData.actorRunId}`
 
 /**
- * SEND THE MESSAGE
+ * SEND THE MESSAGES
  */
 
 const web = new WebClient(token);
@@ -64,14 +64,17 @@ const result = await web.chat.postMessage({
 
 log.info(`Successfully sent message ${result.ts} in channel ${channel}`);
 
-const resultInThread = await web.chat.postMessage({
-    channel,
-    thread_ts: result.ts,
-    text: 'A Lighthouse Analysis report is waiting for you',
-    blocks: pagesListMsgBlocks(successfulRequests)
-});
-
-log.info(`Successfully sent message ${resultInThread.ts} in thread ${result.ts} in channel ${channel}`);
+const SLICE_OF_LINKS = 20;
+for (let i = 0; i < (successfulRequests.length/SLICE_OF_LINKS); i++){
+	const resultInThread = await web.chat.postMessage({
+		channel,
+		thread_ts: result.ts,
+		text: 'A Lighthouse Analysis report is waiting for you',
+		blocks: pagesListMsgBlocks(successfulRequests.slice(i*SLICE_OF_LINKS, (i+1)*SLICE_OF_LINKS))
+	});
+	
+	log.info(`Successfully sent message ${resultInThread.ts} in thread ${result.ts} in channel ${channel}`);	
+}
 
 /**
  * CLEANUP
