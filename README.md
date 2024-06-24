@@ -1,82 +1,31 @@
-## Scrape single-page in TypeScript template
+# Apify Actor for complex Slack messages
 
-A template for scraping data from a single web page in TypeScript (Node.js). The URL of the web page is passed in via input, which is defined by the [input schema](https://docs.apify.com/platform/actors/development/input-schema). The template uses the [Axios client](https://axios-http.com/docs/intro) to get the HTML of the page and the [Cheerio library](https://cheerio.js.org/) to parse the data from it. The data are then stored in a [dataset](https://docs.apify.com/sdk/js/docs/guides/result-storage#dataset) where you can easily access them.
+> **DISCLAIMER**
+>
+> This Actor specifically serves as an integration for [Pagespeed Insights Webpage Analyzer](https://console.apify.com/actors/DDLWekg68xT22l1DW/source) because the existing Slack integration was not fulfilling my expectations
 
-The scraped data in this template are page headings but you can easily edit the code to scrape whatever you want from the page.
+## Use case
 
-## Included features
+When [Pagespeed Insights Webpage Analyzer](https://console.apify.com/actors/DDLWekg68xT22l1DW/source) runs, it will save the results of its analysis in a Key-Value Store named _OUTPUT_. The results there include the number of pages analyzed, the mean score of all the pages for each category of analysis etc.
 
-- **[Apify SDK](https://docs.apify.com/sdk/js/)** - a toolkit for building [Actors](https://apify.com/actors)
-- **[Input schema](https://docs.apify.com/platform/actors/development/input-schema)** - define and easily validate a schema for your Actor's input
-- **[Dataset](https://docs.apify.com/sdk/js/docs/guides/result-storage#dataset)** - store structured data where each object stored has the same attributes
-- **[Axios client](https://axios-http.com/docs/intro)** - promise-based HTTP Client for Node.js and the browser
-- **[Cheerio](https://cheerio.js.org/)** - library for parsing and manipulating HTML and XML
+At the time of writing (24/06/2024) the existing Slack Integration is limited. In particular, it cannot access the data in the Key-Value Store. This Actor was created for the purpose of filling that void, but as such, its use cases are very limited.
 
-## How it works
+## Solution
 
-1. `Actor.getInput()` gets the input where the page URL is defined
-2. `axios.get(url)` fetches the page
-3. `cheerio.load(response.data)` loads the page data and enables parsing the headings
-4. This parses the headings from the page and here you can edit the code to parse whatever you need from the page
-    
-    ```javascript
-    $("h1, h2, h3, h4, h5, h6").each((_i, element) => {...});
-    ```
-    
-5. `Actor.pushData(headings)` stores the headings in the dataset
+We assume this Actor will be used as an Actor-to-Actor integration. Nonetheless, it is possible to pass any `Key-value Store ID` as input and run this Actor independently.
 
-## Resources
+### Inputs
 
-- [Web scraping in Node.js with Axios and Cheerio](https://blog.apify.com/web-scraping-with-axios-and-cheerio/)
-- [Web scraping with Cheerio in 2023](https://blog.apify.com/web-scraping-with-cheerio/)
-- [Video tutorial](https://www.youtube.com/watch?v=yTRHomGg9uQ) on building a scraper using CheerioCrawler
-- [Written tutorial](https://docs.apify.com/academy/web-scraping-for-beginners/challenge) on building a scraper using CheerioCrawler
-- [Integration with Zapier](https://apify.com/integrations), Make, Google Drive, and others
-- [Video guide on getting scraped data using Apify API](https://www.youtube.com/watch?v=ViYYDHSBAKM)
-- A short guide on how to build web scrapers using code templates:
+| Fields                      | Default  | Notes                                                                                                                                       |
+| --------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Slack Token                 | ---      | **Required**                                                                                                                                |
+| Channel                     | #general |                                                                                                                                             |
+| Key-value Store ID          | ---      | _If absent, the Actor will read from the run that triggered this integration. If no other Actor has triggered this one, the run will fail._ |
+| Key-value Store Record name | OUTPUT   |                                                                                                                                             |
 
-[web scraper template](https://www.youtube.com/watch?v=u-i-Korzf8w)
+### Outputs
 
+Two Slack messages are sent:
 
-
-## Getting started
-
-For complete information [see this article](https://docs.apify.com/platform/actors/development#build-actor-locally). To run the actor use the following command:
-
-```bash
-apify run
-```
-
-## Deploy to Apify
-
-### Connect Git repository to Apify
-
-If you've created a Git repository for the project, you can easily connect to Apify:
-
-1. Go to [Actor creation page](https://console.apify.com/actors/new)
-2. Click on **Link Git Repository** button
-
-### Push project on your local machine to Apify
-
-You can also deploy the project on your local machine to Apify without the need for the Git repository.
-
-1. Log in to Apify. You will need to provide your [Apify API Token](https://console.apify.com/account/integrations) to complete this action.
-
-    ```bash
-    apify login
-    ```
-
-2. Deploy your Actor. This command will deploy and build the Actor on the Apify Platform. You can find your newly created Actor under [Actors -> My Actors](https://console.apify.com/actors?tab=my).
-
-    ```bash
-    apify push
-    ```
-
-## Documentation reference
-
-To learn more about Apify and Actors, take a look at the following resources:
-
-- [Apify SDK for JavaScript documentation](https://docs.apify.com/sdk/js)
-- [Apify SDK for Python documentation](https://docs.apify.com/sdk/python)
-- [Apify Platform documentation](https://docs.apify.com/platform)
-- [Join our developer community on Discord](https://discord.com/invite/jyEM2PRvMU)
+1. The aggregated mean scores of the analysis
+2. The scores of each page analyzed (this one is sent as an in-thread response of the first message)
