@@ -1,0 +1,35 @@
+{
+    "title": "Scrape data from a web page",
+    "type": "object",
+    "schemaVersion": 1,
+    "properties": {
+        "token": {
+            "title": "Slack Token",
+            "description": "Slack Token",
+            "type": "string",
+            "editor": "hidden"
+        },
+        "channel": {
+            "title": "Channel",
+            "description": "Slack channel",
+            "type": "string",
+            "default": "#general",
+            "editor": "textfield"
+        },
+        "keyValueStoreId": {
+            "title": "Key-value Store ID",
+            "description": "Specify an ID from any existing Key-Value Store",
+            "type": "string",
+            "default": "",
+            "editor": "textfield"
+        },
+        "keyValueStoreRecordName": {
+            "title": "Key-value Store Record name",
+            "description": "Specify the record name of the Key-Value Store you want to retrieve",
+            "type": "string",
+            "default": "OUTPUT",
+            "editor": "textfield"
+        }
+    },
+    "required": ["token"]
+}
