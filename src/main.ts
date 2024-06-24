@@ -45,8 +45,11 @@ const apifyClient = new ApifyClient();
 
 const keyValueStore = apifyClient.keyValueStore(keyValueStoreToProcess);
 const record = await keyValueStore.getRecord(keyValueStoreRecordName);
+//@ts-ignore
 const scores = record?.value?.lighthouseResults?.scores;
+//@ts-ignore
 const successfulRequests = record?.value?.lighthouseResults?.successfulPages;
+//@ts-ignore
 const finishedRequests = record?.value?.requestsFinished;
 const runUrl = payload && payload.eventData && `https://console.apify.com/view/runs/${payload.eventData.actorRunId}`
 
