@@ -32,9 +32,6 @@ if (!keyValueStoreRecordName) throw new Error("Key-Value Store needs a record na
 if (payload && payload.eventData) {
 	log.info(`Found a previous actor run with ID ${payload.eventData.actorRunId}`);
 	log.info(`Found associated Key-Value Store ID ${payload?.resource?.defaultKeyValueStoreId}`);
-	if (keyValueStoreId) {
-		log.info(`A Key-Value Store ID was passed as input. If you want to use the Key-Value Store ID from the previous run, remove the Key-Value Store ID from the inputs.`);
-	}
 }
 
 /**
